@@ -5,6 +5,6 @@ from PyQt5 import uic
 
 def classFactory(iface):
     """invoke plugin"""
-    from Dendryt.plugin import DendrytPlugin
+    from .plugin import DendrytPlugin
 
     return DendrytPlugin(iface)
