@@ -33,7 +33,7 @@ class Dendryt(QAction):
     Action for opening dock widget for database connections
     """
     def __init__(self,plugin):
-        super(DEndryt,self).__init__(
+        super(Dendryt,self).__init__(
 			plugin.qicon,
 			"Create Spanning Tree",
 			plugin.iface.mainWindow()
