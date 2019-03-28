@@ -22,11 +22,8 @@ __author__ = 'Maciej Kamiński Politechnika Wrocławska'
 import os
 from PyQt5.QtWidgets import QAction,QMessageBox,QApplication
 from PyQt5.QtCore import Qt, QBasicTimer
-#from .maindialog import MongoConnectorDialog
-#from .qgsmongolayer import QgsMongoLayer
 from qgis.gui import QgsMapLayerComboBox
 from qgis.core import *
-#from pymongo import MongoClient
 
 class Dendryt(QAction):
     """
