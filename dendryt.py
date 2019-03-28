@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import QAction,QMessageBox,QApplication
 from PyQt5.QtCore import Qt, QBasicTimer
 from qgis.gui import QgsMapLayerComboBox
 from qgis.core import *
+from bmst import LayerGraph
 
 class Dendryt(QAction):
     """
@@ -59,7 +60,8 @@ class Dendryt(QAction):
 
 
     def clicked(self):
-        print("clicked")
+        layer=QgsProject.instance().mapLayersByName('example')[0]
+        layer_graph=LayerGraph(layer)
 
     def combo_Box_2(self,text):
         self.dlg.kolumnaBox.setEnabled(False)
