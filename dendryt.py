@@ -44,33 +44,20 @@ class Dendryt(QAction):
         self.iface=plugin.iface
         # dailog cannot be set in function variable (it is GCed)
         self.dlg=None
-        #self.dlg=MongoConnectorDialog()
-        #self.mongo_client=MongoClient(serverSelectionTimeoutMS=2000)
-
         # binding frontend actions with logic
-        #self.dlg.connectButton.clicked.connect(self.reconnect)
-        #self.dlg.databaseBox.activated[str].connect(self.database_box_change)
-        #self.dlg.collectionBox.activated[str].connect(self.collection_box_change)
-        #self.dlg.geometryFieldBox.activated[str].connect(self.geometry_field_box_change)
-        #self.dlg.geojsonCheckBox.stateChanged.connect(self.geojson_check_box_changed)
 
     def run(self):
         """
         Just show/dock Widget
         """
-        #A, B = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'main_window1.ui'))
         self.dlg=self.plugin.ui_loader('main_window1.ui')
-        #print(type(self.dlg),A,B)
-
-        #self.dlg.show()
         self.dlg.guziczek.clicked.connect(self.clicked)
-        self.iface.addDockWidget(Qt.LeftDockWidgetArea,self.dlg)
         #self.dlg.warstwaBox.activated[str].connect(self.combo_Box_2)
-        #self.dlg.warstwaBox.addItems(["warstwa1", "warstwa2", "warstwa3", "i żeby tradycji stało się zadość - dupa"])
         #self.dlg.warstwaBox.currentIndexChanged.connect(self.selectionchange)
         self.dlg.LayerComboQ.setFilters(QgsMapLayerProxyModel.LineLayer)
         self.dlg.LayerComboQ.layerChanged.connect(self.layer_change)
-        #print(dir(dlg))
+
+        #self.dlg.show()
         #self.iface.addWindow(self.dlg)
 
 

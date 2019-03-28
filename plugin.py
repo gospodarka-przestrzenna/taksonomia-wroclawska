@@ -34,16 +34,6 @@ class DendrytPlugin(object):
         self.qicon=QIcon(self.icon_path)
         self.plugin_menu_entry="&Dendryt"
         self.menu_actions=[]
-        # test requirements
-        try:
-            pass
-	#from pymongo import MongoClient
-        except ImportError as e:
-            QMessageBox.critical(iface.mainWindow(),
-                            "Missing module",
-                            "Pymongo module is required",
-                            QMessageBox.Ok)
-            return
         #adding actions
         self.menu_actions.append(Dendryt(self))
 
@@ -71,5 +61,4 @@ class DendrytPlugin(object):
         ui_loader('form.ui')
         ui_loader('formsdir','form.ui')
         """
-        #print(path.join(self.plugin_path,*ui_name))
         return uic.loadUi(path.join(self.plugin_path,*ui_name))
