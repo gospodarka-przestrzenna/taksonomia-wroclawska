@@ -72,6 +72,7 @@ class Dendryt(QAction):
     def layer_change(self):
         self.dlg.cb_column.setEnabled(True)
         self.dlg.cb_column.setLayer(self.dlg.cb_layer.currentLayer())
+        self.dlg.cb_column.setFilters(QgsFieldProxyModel.Int | QgsFieldProxyModel.Double)
         # print(self.dlg.LayerComboQ.currentText())
         # #print(self.dlg.LayerComboQ.currentLayer())
         # fid=1
