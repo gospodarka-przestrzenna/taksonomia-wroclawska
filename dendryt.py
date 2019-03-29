@@ -73,6 +73,7 @@ class Dendryt(QAction):
         self.dlg.cb_column.setEnabled(True)
         self.dlg.cb_column.setLayer(self.dlg.cb_layer.currentLayer())
         self.dlg.cb_column.setFilters(QgsFieldProxyModel.Int | QgsFieldProxyModel.Double)
+        self.dlg.check_twoway.setEnabled(True)
         # print(self.dlg.LayerComboQ.currentText())
         # #print(self.dlg.LayerComboQ.currentLayer())
         # fid=1
