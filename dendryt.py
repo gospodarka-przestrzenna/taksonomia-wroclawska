@@ -24,7 +24,7 @@ from PyQt5.QtWidgets import QAction,QMessageBox,QApplication
 from PyQt5.QtCore import Qt, QBasicTimer
 from qgis.gui import QgsMapLayerComboBox
 from qgis.core import *
-from bmst import LayerGraph
+from .bmst import LayerGraph
 
 class Dendryt(QAction):
     """
@@ -48,43 +48,36 @@ class Dendryt(QAction):
         """
         Just show/dock Widget
         """
-        self.dlg=self.plugin.ui_loader('main_window1.ui')
-        self.dlg.guziczek.clicked.connect(self.clicked)
-        #self.dlg.warstwaBox.activated[str].connect(self.combo_Box_2)
-        #self.dlg.warstwaBox.currentIndexChanged.connect(self.selectionchange)
-        self.dlg.LayerComboQ.setFilters(QgsMapLayerProxyModel.LineLayer)
-        self.dlg.LayerComboQ.layerChanged.connect(self.layer_change)
+        self.dlg=self.plugin.ui_loader('api.ui')
+        self.iface.addDockWidget(Qt.LeftDockWidgetArea,self.dlg)
+        self.dlg.accept_button.clicked.connect(self.clicked)
+        self.dlg.cb_layer.setFilters(QgsMapLayerProxyModel.LineLayer)
+        self.dlg.cb_layer.layerChanged.connect(self.layer_change)
 
-        #self.dlg.show()
-        #self.iface.addWindow(self.dlg)
 
 
     def clicked(self):
         layer=QgsProject.instance().mapLayersByName('example')[0]
         layer_graph=LayerGraph(layer)
 
-    def combo_Box_2(self,text):
-        self.dlg.kolumnaBox.setEnabled(False)
-        self.dlg.kolumnaBox.clear()
-        self.dlg.comboBox_3.setEnabled(False)
-        self.dlg.comboBox_3.clear()
-        self.dlg.warstwaBox.setEnabled(True)
+    def column_change(self,text):
+        pass
 
-    def selectionchange(self, i):
-        print("Items in the list are :")
-        for count in range(self.dlg.warstwaBox.count()):
-            print(self.dlg.warstwaBox.itemText(count))
-        print("Current index",i,"selection changed ",self.dlg.warstwaBox.currentText())
+    # def selectionchange(self, i):
+    #     print("Items in the list are :")
+    #     for count in range(self.dlg.warstwaBox.count()):
+    #         print(self.dlg.warstwaBox.itemText(count))
+    #     print("Current index",i,"selection changed ",self.dlg.warstwaBox.currentText())
 
     def layer_change(self):
-        print(self.dlg.LayerComboQ.currentText())
-        #print(self.dlg.LayerComboQ.currentLayer())
-        fid=1
-        #for feature in
-        iterator=self.dlg.LayerComboQ.currentLayer().getFeatures(QgsFeatureRequest().setFilterFid(fid))
-        feature=next(iterator)
-        attrs = feature.attributes()
-        geom=feature.geometry().asGeometryCollection()
-        geom_str=str(geom[0]).split(" ((")[1][:-3].split(", ")
-        print(geom_str)
-        #self.dlg.QwarstwaBox.setLayer()
+        self.dlg.cb_column.setEnabled(True)
+        self.dlg.cb_column.setLayer(self.dlg.cb_layer.currentLayer())
+        # print(self.dlg.LayerComboQ.currentText())
+        # #print(self.dlg.LayerComboQ.currentLayer())
+        # fid=1
+        # #for feature in
+        # iterator=self.dlg.LayerComboQ.currentLayer().getFeatures(QgsFeatureRequest().setFilterFid(fid))
+        # feature=next(iterator)
+        # attrs = feature.attributes()
+        # geom=feature.geometry().asGeometryCollection()
+        # #self.dlg.QwarstwaBox.setLayer()

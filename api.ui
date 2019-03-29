@@ -20,7 +20,7 @@
       <item>
        <widget class="QLabel" name="cblayer_label">
         <property name="text">
-         <string>choose a layer</string>
+         <string>choose a layer:</string>
         </property>
        </widget>
       </item>
