@@ -173,6 +173,7 @@ class Bmst(Graph):
             self.merge_nodes(edge.start,edge.end)
 
         # check if there are any else minimal edges left
+        # if there are, repeat procedure
         if len(minimal_edges) == 0:
             return self
         else:
