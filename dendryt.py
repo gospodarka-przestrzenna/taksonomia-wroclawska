@@ -53,6 +53,7 @@ class Dendryt(QAction):
         self.dlg.accept_button.clicked.connect(self.clicked)
         self.dlg.cb_layer.setFilters(QgsMapLayerProxyModel.LineLayer)
         self.dlg.cb_layer.layerChanged.connect(self.layer_change)
+        self.dlg.cb_column.fieldChanged.connect(self.column_change)
 
 
 
