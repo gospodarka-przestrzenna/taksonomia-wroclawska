@@ -115,7 +115,7 @@ class LayerGraph(Graph):
         data_provider = layer.dataProvider()
         features = data_provider.getFeatures()
         # extraction of weight parameter from features table
-        weight = features.attributes()[features.fieldNameIndex('weight')]
+        weights = [feature["weight"] for feature in features]
         geometries = [feature.geometry() for feature in features]
         ok_geometries = [geometry.convertToSingleType() for geometry in geometries ]
         assert all(ok_geometries)
@@ -162,6 +162,8 @@ class Bmst(Graph):
         # connects two diffrent nodes
         proper_edges = [edge for edge in graph.edges if edge.start != edge.end]
 
+        # each edge that has supernodes as both start and end
+        # is considered as a superedge
         for edge in proper_edges:
             superedge = Edge(\
                             edge.start[prefix+"bmst_supernode"],
@@ -185,7 +187,7 @@ class Bmst(Graph):
         #
         if not self.minimal_edges:
             # we have no edges we put phase to
-            self.edges_with_phase=[]
+            self.edges_with_phase = []
         else:
             # merge start and end nodes of the minimum outgoing edge
             # into one supernode
@@ -199,7 +201,7 @@ class Bmst(Graph):
 
 
             # computing next_phase
-            self.next_phase=Bmst(self,phase+1)
+            self.next_phase = Bmst(self,phase+1)
             # after this our supernode[prefix+"phase_id"] is set
             # our edges don't have proper phase set for phase grater than our (current) phase
             # next_phase.edges_with_phase list contains edges from the next_phase object
@@ -213,24 +215,24 @@ class Bmst(Graph):
                 # same as we create our superege as original (on top of) graph edge
                 # and me must append phase from next_phase edge into our edge
                 # their phase shoud be our phase
-                supersuperedge[prefix+"original_edge"][prefix+"phase"]=supersuperedge[prefix+"phase"]
+                supersuperedge[prefix+"original_edge"][prefix+"phase"] = supersuperedge[prefix+"phase"]
 
             # now our edges_with_phase are
-            self.edges_with_phase=[
+            self.edges_with_phase = [
                 supersuperedge[prefix+"original_edge"]
                 for supersuperedge in self.next_phase.edges_with_phase
             ]
 
             # let's put current phase in edge from minimal_edges
             for minimal_edge in self.minimal_edges:
-                minimal_edge[prefix+"phase"]=phase
+                minimal_edge[prefix+"phase"] = phase
 
             #lets denote that now also minimal_edges have phase stated
             self.edges_with_phase.extend(self.minimal_edges)
 
-        if phase==1:
+        if phase == 1:
             for node in graph:
-                node[prefix+"bmst_supernode"]=self._containg_supenodes_id(node)
+                node[prefix+"bmst_supernode"] = self._containg_supenodes_id(node)
 
 
     def merge_nodes(self,supernode,included_supernode):
