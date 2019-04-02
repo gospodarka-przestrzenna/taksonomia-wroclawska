@@ -27,6 +27,7 @@ class Node(dict):
     def __init__(self,properties={}):
         self.update(properties)
 
+
 class Edge(dict):
     # Edge sets two Nodes in relation and
     # asigns properties to this relation
@@ -38,13 +39,15 @@ class Edge(dict):
         self.end = end
         self.update(properties)
 
+
 class Graph(list):
     # Graph is a list of nodes
     # Graph must have edges and nodes
-    def __init__(self):
+    def __init__(self,directed=True):
         #self.nodes=[] # list of Node objects
         self.edges = [] # list of Edge objects
         # with each edge  index
+        self.directed = directed
 
     def add_node(self,node):
         assert type(node) == Node
@@ -55,7 +58,8 @@ class Graph(list):
         node_idx = len(self)
         node[prefix+"id"] = node_idx
         node[prefix+"outgoing"] = []
-        node[prefix+"ingoing"] = []
+        if self.directed:
+            node[prefix+"ingoing"] = []
         self.append(node)
 
     def add_edge(self,edge):
@@ -66,12 +70,16 @@ class Graph(list):
         # both edge's start and end are also added
         # to the edge class start and end dictionaries with specific keys
         edge.start[prefix+"outgoing"].append(edge)
-        edge.end[prefix+"ingoing"].append(edge)
+        if self.directed:
+            edge.end[prefix+"ingoing"].append(edge)
+        else:
+            edge.end[prefix+"outgoing"].append(edge)
         # given edge is added to the edges list of Graph
         self.edges.append(edge)
 
-    def merge_nodes(node,included_node):
+    def merge_nodes(self,node,included_node):
         # do nothing if both given nodes are the same one
+        # nothing to merge
         if node == included_node:
             return
 
@@ -81,7 +89,7 @@ class Graph(list):
             included_edge.start = node
             node[prefix+"outgoing"].append(included_edge)
 
-        # ingong edges from included_node are now
+        # ingong edges to included_node are now
         # edges of the node
         for included_edge in included_node[prefix+"ingoing"]:
             included_edge.end = node
@@ -91,11 +99,11 @@ class Graph(list):
         self[included_node[prefix+"id"]] = None
 
     def __iter__(self):
-        return iter([elemet for element in self if element is not None])
-
+        return iter([element for element in super().__iter__() if element is not None])
 
 class LayerGraph(Graph):
     def __init__(self,layer,weight_colum_name,both_ways=True):
+
         # we create Graph from layer
         # The linestring ends describes Graph nodes
         self.node_geometries=[] # list for node geometries
@@ -129,7 +137,6 @@ class LayerGraph(Graph):
             return self.nodes[node_index]
 
 #class CSVGraph(Graph): ?
-
 class Bmst(Graph):
     # the main idea of this class will be to represent
     # supernodes and its relations
@@ -137,7 +144,9 @@ class Bmst(Graph):
     # supernodes contain multiple nodes agregated
     # supernodes represent algorithm clustering behaviour on each phase
     # We will refer to Bmst nodes as supernodes
-    def __init__(self,graph,phase_column_name):
+    def __init__(self,graph,phase=1):
+        # initiate Graph
+        super().__init__()
         # during init we will create supernode for each input graph node and
         for node in graph:
             # Supernode contains one node at beginning
@@ -147,37 +156,79 @@ class Bmst(Graph):
             # we denote
             node[prefix+"bmst_supernode"] = supernode
 
+        # we consider only edges that are not self-connecting
+        # connects two diffrent nodes
         proper_edges = [edge for edge in graph.edges if edge.start != edge.end]
 
         for edge in proper_edges:
             superedge = Edge(\
                             edge.start[prefix+"bmst_supernode"],
                             edge.end[prefix+"bmst_supernode"],
-                            edge.properties,
+                            {prefix+"original_edge":edge,prefix+"weight":edge[prefix+"weight"]}
                             )
             self.add_edge(superedge)
 
         # later we will merge supernodes according to the shortest edge
-
         # get each node minimum outgoing edge
-        minimal_edges=[
+        # but only if node has outgoing edges
+        self.minimal_edges=[
             min(
                 supernode[prefix+"outgoing"],
                 key = lambda x:x[prefix+"weight"])
             for supernode in self
-            if len(supernode[prefix+"outgoing"])>0
+            if supernode[prefix+"outgoing"]
         ]
 
-        # merge start and end nodes of the minimum outgoing edge
-        for edge in minimal_edges:
-            self.merge_nodes(edge.start,edge.end)
-
-        # check if there are any else minimal edges left
-        # if there are, repeat procedure
-        if len(minimal_edges) == 0:
-            return self
+        # minimal_edges is empty then no new supernode will appear
+        #
+        if not self.minimal_edges:
+            # we have no edges we put phase to
+            self.edges_with_phase=[]
         else:
-            return Bmst(self)
+            # merge start and end nodes of the minimum outgoing edge
+            # into one supernode
+            # this is the realization of algorithm behaviour
+            for superedge in self.minimal_edges:
+                self.merge_nodes(superedge.start,superedge.end)
+            # After this step we have supernodes sucessfuly created
+            # each node is in some supernode
+            # supernode contains at least two nodes
+            # the phase is fulfilled
+
+
+            # computing next_phase
+            self.next_phase=Bmst(self,phase+1)
+            # after this our supernode[prefix+"phase_id"] is set
+            # our edges don't have proper phase set for phase grater than our (current) phase
+            # next_phase.edges_with_phase list contains edges from the next_phase object
+            # list refers to their edges where phase is just set and updated (in next_phase level object)
+
+            # let's revrite phase from edges created in next_phase
+            # into our edges (edges in our object)
+            for supersuperedge in self.next_phase.edges_with_phase:
+                # we must get our superedges from next_phase supersuperedge
+                # as it is the original egde that next_phase edge is created on
+                # same as we create our superege as original (on top of) graph edge
+                # and me must append phase from next_phase edge into our edge
+                # their phase shoud be our phase
+                supersuperedge[prefix+"original_edge"][prefix+"phase"]=supersuperedge[prefix+"phase"]
+
+            # now our edges_with_phase are
+            self.edges_with_phase=[
+                supersuperedge[prefix+"original_edge"]
+                for supersuperedge in self.next_phase.edges_with_phase
+            ]
+
+            # let's put current phase in edge from minimal_edges
+            for minimal_edge in self.minimal_edges:
+                minimal_edge[prefix+"phase"]=phase
+
+            #lets denote that now also minimal_edges have phase stated
+            self.edges_with_phase.extend(self.minimal_edges)
+
+        if phase==1:
+            for node in graph:
+                node[prefix+"bmst_supernode"]=self._containg_supenodes_id(node)
 
 
     def merge_nodes(self,supernode,included_supernode):
@@ -190,3 +241,12 @@ class Bmst(Graph):
         # uptate each node in included_supernode to point proper node they are in
         for node in included_supernode[prefix+"bmst_nodes"]:
             node[prefix+"bmst_supernode"] = supernode
+
+    def _containg_supenodes_id(self,supernode):
+        # returns a list of id of supernodes on this and higher phase so:
+        # [supernode_id,supernode_id_that_contains_it, supernode_id_that_contains_that_contains ...]
+        if prefix+"bmst_supernode" not in supernode:
+            return []
+        else:
+            id=supernode[prefix+"id"]
+            return [id]+self._containg_supenodes_id(supernode[prefix+"bmst_supernode"])
