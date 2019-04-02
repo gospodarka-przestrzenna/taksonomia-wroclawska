@@ -115,28 +115,29 @@ class LayerGraph(Graph):
         data_provider = layer.dataProvider()
         features = data_provider.getFeatures()
         # extraction of weight parameter from features table
-        weights = [feature["weight"] for feature in features]
+        weights = [feature[weight_colum_name] for feature in features]
         geometries = [feature.geometry() for feature in features]
         ok_geometries = [geometry.convertToSingleType() for geometry in geometries ]
         assert all(ok_geometries)
 
-        for geometry in geometries:
-            start = geometry_seed_node(geometry.asPolyline()[0])
-            end = geometry_seed_node(geometry.asPolyline()[-1])
-            self.add_edge(Edge(start,end,{prefix+"weight":0}))
+        for g,w in zip(geometries,weights):
+            start = geometry_node(g.asPolyline()[0])
+            end = geometry_node(g.asPolyline()[-1])
+            self.add_edge(Edge(start,end,{prefix+"weight":w}))
             if both_ways:
-                self.add_edge(Edge(end,start,{prefix+"weight":0}))
+                self.add_edge(Edge(end,start,{prefix+"weight":w}))
 
-    def geometry_seed_node(self,geometry):
+    def geometry_node(self,geometry):
         # function gets real geometry
         # returns new or existing Node with this geoetry as property
         if geometry not in self.node_geometries:
             node = Node({prefix+"geometry":geometry})
             self.add_node(node)
+            self.node_geometries.append(geometry)
             return node
         else:
             node_index = self.node_geometries.index(geometry)
-            return self.nodes[node_index]
+            return self[node_index]
 
 #class CSVGraph(Graph): ?
 class Bmst(Graph):
