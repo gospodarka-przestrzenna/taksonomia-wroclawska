@@ -103,7 +103,7 @@ class Graph(list):
 
 class LayerGraph(Graph):
     def __init__(self,layer,weight_colum_name,both_ways=True):
-
+        super().__init__()
         # we create Graph from layer
         # The linestring ends describes Graph nodes
         self.node_geometries=[] # list for node geometries
@@ -116,13 +116,16 @@ class LayerGraph(Graph):
         features = data_provider.getFeatures()
         # extraction of weight parameter from features table
         weights = [feature[weight_colum_name] for feature in features]
+        #print(weights)
+        features = data_provider.getFeatures()
         geometries = [feature.geometry() for feature in features]
+        #print(geometries)
         ok_geometries = [geometry.convertToSingleType() for geometry in geometries ]
         assert all(ok_geometries)
 
         for g,w in zip(geometries,weights):
-            start = geometry_node(g.asPolyline()[0])
-            end = geometry_node(g.asPolyline()[-1])
+            start = self.geometry_node(g.asPolyline()[0])
+            end = self.geometry_node(g.asPolyline()[-1])
             self.add_edge(Edge(start,end,{prefix+"weight":w}))
             if both_ways:
                 self.add_edge(Edge(end,start,{prefix+"weight":w}))
@@ -138,6 +141,7 @@ class LayerGraph(Graph):
         else:
             node_index = self.node_geometries.index(geometry)
             return self[node_index]
+
 
 #class CSVGraph(Graph): ?
 class Bmst(Graph):

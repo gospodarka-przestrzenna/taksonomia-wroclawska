@@ -50,7 +50,7 @@ class Dendryt(QAction):
         """
         self.dlg=self.plugin.ui_loader('api.ui')
         self.iface.addDockWidget(Qt.LeftDockWidgetArea,self.dlg)
-        self.dlg.accept_button.clicked.connect(self.clicked)
+        self.dlg.accept_button.clicked.connect(self.compute)
         self.dlg.cb_layer.setFilters(QgsMapLayerProxyModel.LineLayer)
         self.dlg.cb_layer.layerChanged.connect(self.layer_change)
         self.dlg.cb_column.fieldChanged.connect(self.column_change)
@@ -62,6 +62,7 @@ class Dendryt(QAction):
         layer_graph=LayerGraph(layer)
 
     def column_change(self,text):
+        self.dlg.accept_button.setEnabled(True)
         pass
 
     # def selectionchange(self, i):
@@ -84,3 +85,7 @@ class Dendryt(QAction):
         # attrs = feature.attributes()
         # geom=feature.geometry().asGeometryCollection()
         # #self.dlg.QwarstwaBox.setLayer()
+
+    def compute(self):
+        result = LayerGraph(self.dlg.cb_layer.currentLayer(),self.dlg.cb_column.currentText())
+        print(result)
