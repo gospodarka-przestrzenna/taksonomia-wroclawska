@@ -114,6 +114,8 @@ class LayerGraph(Graph):
         # data provider
         data_provider = layer.dataProvider()
         features = data_provider.getFeatures()
+        # extraction of weight parameter from features table
+        weight = features.attributes()[features.fieldNameIndex('weight')]
         geometries = [feature.geometry() for feature in features]
         ok_geometries = [geometry.convertToSingleType() for geometry in geometries ]
         assert all(ok_geometries)
