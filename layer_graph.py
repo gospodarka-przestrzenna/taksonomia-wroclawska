@@ -22,8 +22,9 @@ __author__ = 'Maciej Kamiński Politechnika Wrocławska'
 from graph import Graph,Node,Edge,prefix
 
 class LayerGraph(Graph):
-    def __init__(self,layer,weight_colum_name,both_ways=True):
-        super().__init__()
+    def __init__(self,linestring_layer,point_layer=None,directed=False):
+        super().__init__(directed)
+
         # we create Graph from layer
         # The linestring ends describes Graph nodes
         self.node_geometries=[] # list for node geometries
@@ -61,3 +62,23 @@ class LayerGraph(Graph):
         else:
             node_index = self.node_geometries.index(geometry)
             return self[node_index]
+
+
+
+    def get_point_layer(self):
+        #
+        pass
+
+    def get_linestring_layer(self):
+        # return copy
+        pass
+
+    def update_property_in_point_layer(self,property_name):
+        #
+        pass
+
+    def update_property_in_linestring_layer(self,property_name):
+        #
+        pass
+
+    
