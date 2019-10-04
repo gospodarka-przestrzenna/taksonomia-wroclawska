@@ -19,103 +19,121 @@
 #
 ###############################################################################
 __author__ = 'Maciej Kamiński Politechnika Wrocławska'
-prefix = "___dw_"
+
+import heapq
 
 class Node(dict):
-    # Node is an object witch may have some property
+    # Node is an object witch may have some other node connected
     # consider this as kind of a dict
     def __init__(self,properties={}):
         self.update(properties)
 
+    def __lt__(self,element):
+        return id(self) < id(element)
+
+    def __eq__(self,element):
+        return self is element
+
+    def __hash__(self):
+        return id(self)
 
 class Edge(dict):
-    # Edge sets two Nodes in relation and
-    # asigns properties to this relation
-    # so this is dict with start and end (Nodes)
-    def __init__(self,start,end,properties={}):
-        assert type(start) == Node
-        assert type(end) == Node
-        self.start = start
-        self.end = end
-        self.update(properties)
+    # edge or properties (dict)
+    # weight is the weight name in properties
+    def __init__(self,edge={},weight=None):
+        self.update(edge)
+        self.weight=getattr(edge,'weight',weight) # if edgie is Edge
 
-    # def end(self,node):
-    #     # or maybe another end /
-    #     # function returns the other end when start is node
-    #     # this is useful in non directed graphs where node descibed end
-    #     # might be a self.start node
-    #     if node == self.start:
-    #         return self.end
-    #     elif node == self.end:
-    #         return self.start
-    #     else:
-    #         raise ValueError("node might be only start or end")
-    #
-    # def end_set(self,node,node_to_set):
-    #     # or maybe another end /
-    #     # function returns the other end when start is node
-    #     # this is useful in non directed graphs where node descibed end
-    #     # might be a self.start node
-    #     if node == self.start:
-    #         self.end=node_to_set
-    #     elif node == self.end:
-    #         self.start=node_to_set
-    #     else:
-    #         raise ValueError("node might be only start or end")
+    def __lt__(self,egde):
+        return  self.weight and
+                (self.weight in self) and
+                (self.weight in edge) and
+                self[self.weight] < edge[edge.weight]
 
-class Graph(list):
+    def __le__(self,egde):
+        return  self.weight and
+                (self.weight in self) and
+                (self.weight in edge) and
+                self[self.weight] <= edge[edge.weight]
+
+    # here ==  shouls mean same edge not weight equality
+    # OR we wont porovide == method as it is ambigouse
+    # noo we must provide as we provide hash
+    def __eq__(self,element):
+        return self is element
+
+    def __hash__(self):
+        return id(self)
+
+
+class EdgeSet(list):
+    def heapify(self):
+        heapq.heapify(self)
+    def add(self,edge):
+        heapq.heappush(self,edge)
+    def pop(self):
+        return heapq.heappop(self)
+
+
+class Graph(object):
     # Graph is a list of nodes
     # Graph must have edges and nodes
-    def __init__(self,directed=True):
-        #self.nodes=[] # list of Node objects
-        self.edges = [] # list of Edge objects
-        # with each edge  index
-        self.directed = directed
+    def __init__(self,is_directed=True):
+        self.is_directed = is_directed # bidirectional edges are two edges that share properties (as object)
+        self.node_edge_key=node_edge_key
+
+        self.nodes=set()
+        self.edges=set()
+
+        self.edge_connection={} # {Edge:(node1,node2).. or {Edge:{node1,node2} for undirected
+        self.connection_edge={} # {(node1,node2):edge.. or {{node1,node2}:Edge for undirected
+
+        self.node_outgoing_edges={} #{Node:EdgeSet([Edge,edge..])..}
+        self.node_ingoing_edges={} #{Node:EdgeSet([Edge,edge..]..}
+
+    def add_edge(self,node1,node2,edge):
+        assert isinstance(edge,Edge)
+        assert node1 in self.nodes
+        assert node2 in self.nodes
+
+        connection = self.connection(node1,node2)
+        assert connection not in self.connection_edge
+
+        edge.graph=self
+        self.edges.add(edge)
+        self.edge_connection[edge]=connection
+        self.connection_edge[connection]=edge
+
+        self.node_outgoing_edges[node1].add(edge)
+        self.node_ingoing_edges[node2].add(edge)
+        if self.is_directed:
+            self.node_outgoing_edges[node2].add(edge)
+            self.node_ingoing_edges[node1].add(edge)
+
 
     def add_node(self,node):
-        assert type(node) == Node
-        if node in self:
-            return
-        # the node id has the same value as the length of the list
-        # in the moment of addition
-        node_idx = len(self)
-        node[prefix+"id"] = node_idx
-        node[prefix+"outgoing"] = []
-        node[prefix+"ingoing"] = []
-        self.append(node)
+        assert isinstance(node,Node)
+        node.graph=self
+        self.nodes.add(node)
+        self.node_outgoing_edges[node]=EdgeSet()
+        self.node_ingoing_edges[node]=EdgeSet()
 
-    def add_edge(self,edge):
-        assert type(edge) == Edge
-        # both edge's stat and end are added to the Graph list of nodes
-        self.add_node(edge.start)
-        self.add_node(edge.end)
-        # both edge's start and end are also added
-        # to the edge class start and end dictionaries with specific keys
-        edge.start[prefix+"outgoing"].append(edge)
-        edge.end[prefix+"ingoing"].append(edge)
-        # given edge is added to the edges list of Graph
-        self.edges.append(edge)
+    def order_by(self,name):
+        for e in self.edges:
+            e.weight=name
+        for n in self.node_ingoing_edges:
+            self.node_ingoing_edges[n].heapify()
+        for n in self.node_outgoing_edges:
+            self.node_outgoing_edges[n].heapify()
 
-    def merge_nodes(self,node,included_node):
-        # do nothing if both given nodes are the same one
-        # nothing to merge
-        if node == included_node:
-            return
+    def connection(self,node1,node2):
+        return (node1,node2) if self.is_directed or node1<node2 else (node2,node1)
+        # basically connection is alwais a tuple (but if graph is undirected) than we
+        # use somehow directed orderd tuple
+        # therefor we can alwais describe connection
 
-        # outgong edges from included_node are now
-        # edges of the node
-        for included_edge in included_node[prefix+"outgoing"]:
-            included_edge.start = node
-            node[prefix+"outgoing"].append(included_edge)
-
-        # ingong edges to included_node are now
-        # edges of the node
-        for included_edge in included_node[prefix+"ingoing"]:
-            included_edge.end = node
-            node[prefix+"ingoing"].append(included_edge)
-        # The included_node object diappears
-        # node with this id is now none
-        self[included_node[prefix+"id"]] = None
-
-    def __iter__(self):
-        return iter([element for element in super().__iter__() if element is not None])
+    def connected(self,node1,node2):
+        if self.connection(node1,node2) in self.connection_edge:
+            return True
+        else:
+            return False
