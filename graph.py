@@ -37,6 +37,9 @@ class Node(dict):
     def __hash__(self):
         return id(self)
 
+    def __repr__(self):
+        return str((id(self)/4)%100)
+
 class Edge(dict):
     # edge or properties (dict)
     # weight is the weight name in properties
@@ -44,17 +47,18 @@ class Edge(dict):
         self.update(edge)
         self.weight=getattr(edge,'weight',weight) # if edgie is Edge
 
-    def __lt__(self,egde):
-        return  self.weight and
-                (self.weight in self) and
-                (self.weight in edge) and
-                self[self.weight] < edge[edge.weight]
+    def __lt__(self,edge):
+        assert self.weight and \
+                (self.weight in self) and \
+                (edge.weight in edge)
+        return  self[self.weight] < edge[edge.weight]
 
-    def __le__(self,egde):
-        return  self.weight and
-                (self.weight in self) and
-                (self.weight in edge) and
-                self[self.weight] <= edge[edge.weight]
+
+    def __le__(self,edge):
+        assert self.weight and \
+                (self.weight in self) and \
+                (edge.weight in edge)
+        return  self[self.weight] <= edge[edge.weight]
 
     # here ==  shouls mean same edge not weight equality
     # OR we wont porovide == method as it is ambigouse
@@ -66,27 +70,31 @@ class Edge(dict):
         return id(self)
 
 
+# this can be a list or a heap
 class EdgeSet(list):
     def heapify(self):
+        #self.sort()
         heapq.heapify(self)
     def add(self,edge):
+        #super(EdgeSet,self).append(edge) # preserve order
+        #self.sort()
         heapq.heappush(self,edge)
     def pop(self):
         return heapq.heappop(self)
+        #return super(EdgeSet,self).pop(0)
 
 
 class Graph(object):
     # Graph is a list of nodes
     # Graph must have edges and nodes
     def __init__(self,is_directed=True):
-        self.is_directed = is_directed # bidirectional edges are two edges that share properties (as object)
-        self.node_edge_key=node_edge_key
+        self.is_directed = is_directed #
 
         self.nodes=set()
         self.edges=set()
 
-        self.edge_connection={} # {Edge:(node1,node2).. or {Edge:{node1,node2} for undirected
-        self.connection_edge={} # {(node1,node2):edge.. or {{node1,node2}:Edge for undirected
+        self.edge_connection={} # {Edge:(node1,node2)..
+        self.connection_edges={} # {(node1,node2):EdgeSet([Edge,edge..])..
 
         self.node_outgoing_edges={} #{Node:EdgeSet([Edge,edge..])..}
         self.node_ingoing_edges={} #{Node:EdgeSet([Edge,edge..]..}
@@ -97,16 +105,16 @@ class Graph(object):
         assert node2 in self.nodes
 
         connection = self.connection(node1,node2)
-        assert connection not in self.connection_edge
 
-        edge.graph=self
         self.edges.add(edge)
         self.edge_connection[edge]=connection
-        self.connection_edge[connection]=edge
+        if connection not in self.connection_edges:
+            self.connection_edges[connection]=EdgeSet()
+        self.connection_edges[connection].add(edge)
 
         self.node_outgoing_edges[node1].add(edge)
         self.node_ingoing_edges[node2].add(edge)
-        if self.is_directed:
+        if not self.is_directed:
             self.node_outgoing_edges[node2].add(edge)
             self.node_ingoing_edges[node1].add(edge)
 
@@ -121,19 +129,21 @@ class Graph(object):
     def order_by(self,name):
         for e in self.edges:
             e.weight=name
-        for n in self.node_ingoing_edges:
-            self.node_ingoing_edges[n].heapify()
-        for n in self.node_outgoing_edges:
-            self.node_outgoing_edges[n].heapify()
+        for n,es in self.node_ingoing_edges.items():
+            es.heapify()
+        for n,es in self.node_outgoing_edges.items():
+            es.heapify()
+        for n,es in self.connection_edges.items():
+            es.heapify()
 
     def connection(self,node1,node2):
         return (node1,node2) if self.is_directed or node1<node2 else (node2,node1)
-        # basically connection is alwais a tuple (but if graph is undirected) than we
-        # use somehow directed orderd tuple
+        # basically connection is alwais a tuple
+        # but if graph is undirected than we use directed/orderd tuple
         # therefor we can alwais describe connection
 
     def connected(self,node1,node2):
-        if self.connection(node1,node2) in self.connection_edge:
+        if self.connection(node1,node2) in self.connection_edges:
             return True
         else:
             return False
