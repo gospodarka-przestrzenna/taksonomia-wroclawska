@@ -60,9 +60,8 @@ class Edge(dict):
                 (edge.weight in edge)
         return  self[self.weight] <= edge[edge.weight]
 
-    # here ==  shouls mean same edge not weight equality
-    # OR we wont porovide == method as it is ambigouse
-    # noo we must provide as we provide hash
+    # here ==  must mean same edge not weight equality
+    # we must provide as we provide hash
     def __eq__(self,element):
         return self is element
 

@@ -2,16 +2,8 @@
 <ui version="4.0">
  <class>DockWidget</class>
  <widget class="QDockWidget" name="DockWidget">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>306</width>
-    <height>496</height>
-   </rect>
-  </property>
   <property name="windowTitle">
-   <string>DockWidget</string>
+   <string>Dendryt Wrocławski</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
@@ -42,33 +34,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>text</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>network geometry</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="check_twoway">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>all routes are two-way</string>
+         <string>Undirected (Experimental)</string>
         </property>
         <property name="checked">
          <bool>true</bool>

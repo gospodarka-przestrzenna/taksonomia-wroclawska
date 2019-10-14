@@ -24,7 +24,9 @@ from PyQt5.QtWidgets import QAction,QMessageBox,QApplication
 from PyQt5.QtCore import Qt, QBasicTimer
 from qgis.gui import QgsMapLayerComboBox
 from qgis.core import *
-from .bmst import LayerGraph
+from .layer_graph import *
+from .bmst2 import Bmst
+#from .example_use import *
 
 class Dendryt(QAction):
     """
@@ -48,44 +50,26 @@ class Dendryt(QAction):
         """
         Just show/dock Widget
         """
-        self.dlg=self.plugin.ui_loader('api.ui')
+        self.dlg=self.plugin.ui_loader('lines.ui')
         self.iface.addDockWidget(Qt.LeftDockWidgetArea,self.dlg)
         self.dlg.accept_button.clicked.connect(self.compute)
         self.dlg.cb_layer.setFilters(QgsMapLayerProxyModel.LineLayer)
+        #self.dlg.cb_layer.setFilters(QgsMapLayerProxyModel.NoGeometry)
         self.dlg.cb_layer.layerChanged.connect(self.layer_change)
         self.dlg.cb_column.fieldChanged.connect(self.column_change)
-
-
-
-    def clicked(self):
-        layer=QgsProject.instance().mapLayersByName('example')[0]
-        layer_graph=LayerGraph(layer)
-
-    def column_change(self,text):
-        self.dlg.accept_button.setEnabled(True)
-        pass
-
-    # def selectionchange(self, i):
-    #     print("Items in the list are :")
-    #     for count in range(self.dlg.warstwaBox.count()):
-    #         print(self.dlg.warstwaBox.itemText(count))
-    #     print("Current index",i,"selection changed ",self.dlg.warstwaBox.currentText())
+        #self.dlg.accept_button.setEnabled(True)
 
     def layer_change(self):
         self.dlg.cb_column.setEnabled(True)
         self.dlg.cb_column.setLayer(self.dlg.cb_layer.currentLayer())
         self.dlg.cb_column.setFilters(QgsFieldProxyModel.Int | QgsFieldProxyModel.Double)
+
+    def column_change(self,text):
+        self.dlg.accept_button.setEnabled(True)
         self.dlg.check_twoway.setEnabled(True)
-        # print(self.dlg.LayerComboQ.currentText())
-        # #print(self.dlg.LayerComboQ.currentLayer())
-        # fid=1
-        # #for feature in
-        # iterator=self.dlg.LayerComboQ.currentLayer().getFeatures(QgsFeatureRequest().setFilterFid(fid))
-        # feature=next(iterator)
-        # attrs = feature.attributes()
-        # geom=feature.geometry().asGeometryCollection()
-        # #self.dlg.QwarstwaBox.setLayer()
 
     def compute(self):
-        result = LayerGraph(self.dlg.cb_layer.currentLayer(),self.dlg.cb_column.currentText())
-        print(result)
+        graph = graph_from_layer(self.dlg.cb_layer.currentLayer(),self.dlg.cb_column.currentText())
+        result= Bmst(graph)
+        layer_from_graph("vx-{}".format(id(result)),result.nodes,self.iface)
+        layer_from_graph("ls-{}".format(id(result)),result.edges,self.iface)
