@@ -25,27 +25,17 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
 from .dendryt import Dendryt
+from .mds import MDS
 
 class DendrytPlugin(object):
     def __init__(self,iface):
         self.iface=iface
         self.plugin_path=path.dirname(path.abspath(__file__))
-        self.icon_path=path.join(self.plugin_path,'images','cluster_icon.png')
-        self.qicon=QIcon(self.icon_path)
         self.plugin_menu_entry="&Dendryt"
         self.menu_actions=[]
-        # test requirements
-        try:
-            pass
-	#from pymongo import MongoClient
-        except ImportError as e:
-            QMessageBox.critical(iface.mainWindow(),
-                            "Missing module",
-                            "Pymongo module is required",
-                            QMessageBox.Ok)
-            return
         #adding actions
         self.menu_actions.append(Dendryt(self))
+        self.menu_actions.append(MDS(self))
 
 
     def initGui(self):
@@ -71,5 +61,8 @@ class DendrytPlugin(object):
         ui_loader('form.ui')
         ui_loader('formsdir','form.ui')
         """
-        #print(path.join(self.plugin_path,*ui_name))
         return uic.loadUi(path.join(self.plugin_path,*ui_name))
+
+    def icon(self,name):
+        icon_path=path.join(self.plugin_path,'images',name)
+        return QIcon(icon_path)
