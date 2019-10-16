@@ -85,3 +85,6 @@ def layer_from_graph(name,the_set,iface):
 
     vl.updateExtents()
     QgsProject.instance().addMapLayer(vl)
+
+def sammon_graph(layer,colums):
+    pass

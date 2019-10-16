@@ -34,12 +34,11 @@ class Dendryt(QAction):
     """
     def __init__(self,plugin):
         super(Dendryt,self).__init__(
-			plugin.qicon,
+			plugin.icon('cluster_icon.png'),
 			"Create Spanning Tree",
 			plugin.iface.mainWindow()
 	           )
         self.triggered.connect(self.run)
-
         self.plugin=plugin
         self.iface=plugin.iface
         # dailog cannot be set in function variable (it is GCed)
@@ -53,11 +52,15 @@ class Dendryt(QAction):
         self.dlg=self.plugin.ui_loader('lines.ui')
         self.iface.addDockWidget(Qt.LeftDockWidgetArea,self.dlg)
         self.dlg.accept_button.clicked.connect(self.compute)
-        self.dlg.cb_layer.setFilters(QgsMapLayerProxyModel.LineLayer)
-        #self.dlg.cb_layer.setFilters(QgsMapLayerProxyModel.NoGeometry)
         self.dlg.cb_layer.layerChanged.connect(self.layer_change)
         self.dlg.cb_column.fieldChanged.connect(self.column_change)
-        #self.dlg.accept_button.setEnabled(True)
+        self.dlg.cb_layer.setFilters(QgsMapLayerProxyModel.LineLayer)
+        self.reset_gui()
+
+
+    def reset_gui(self):
+        self.dlg.accept_button.setEnabled(False)
+        self.dlg.cb_column.setEnabled(False)
 
     def layer_change(self):
         self.dlg.cb_column.setEnabled(True)
@@ -69,7 +72,10 @@ class Dendryt(QAction):
         self.dlg.check_twoway.setEnabled(True)
 
     def compute(self):
-        graph = graph_from_layer(self.dlg.cb_layer.currentLayer(),self.dlg.cb_column.currentText())
+        graph = graph_from_layer(
+                    self.dlg.cb_layer.currentLayer(),
+                    self.dlg.cb_column.currentText())
         result= Bmst(graph)
-        layer_from_graph("vx-{}".format(id(result)),result.nodes,self.iface)
-        layer_from_graph("ls-{}".format(id(result)),result.edges,self.iface)
+        layer_from_graph("nodes-{}".format(id(result)%10000),result.nodes,self.iface)
+        layer_from_graph("lines-{}".format(id(result)%10000),result.edges,self.iface)
+        self.reset_gui()
