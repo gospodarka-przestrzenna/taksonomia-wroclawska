@@ -173,7 +173,6 @@ def map_dimensions(data,do_3d):
             projection = make_projection([e for e  in range(pdims(current_projection)) if e!=i])
             prevstress=sstress(projection)
             # lets iterate
-            print('prev',prevstress)
             alpha=1.0
             for step in range(20):
                 newprojection=[]
@@ -200,14 +199,11 @@ def map_dimensions(data,do_3d):
                     prevstress=currstress
                     #print('after',currstress)
                 else:
-                    print('xafter',currstress)
                     alpha=alpha/2
                     if alpha<0.0000001:
                         break
-            print('xxafter',currstress)
             minimals[currstress]=projection
         # this is the best for normal cast
-        print("mk",minimals.keys())
         current_projection=minimals[min(minimals.keys())]
 
     return current_projection
