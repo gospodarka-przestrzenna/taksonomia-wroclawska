@@ -76,6 +76,6 @@ class Dendryt(QAction):
                     self.dlg.cb_layer.currentLayer(),
                     self.dlg.cb_column.currentText())
         result= Bmst(graph)
-        layer_from_graph("nodes-{}".format(id(result)%10000),result.nodes,self.iface)
-        layer_from_graph("lines-{}".format(id(result)%10000),result.edges,self.iface)
+        layer_from_graph("nodes-{}".format(id(result)%10000),result.nodes,self.dlg.cb_layer.currentLayer().crs().authid())
+        layer_from_graph("lines-{}".format(id(result)%10000),result.edges,self.dlg.cb_layer.currentLayer().crs().authid())
         self.reset_gui()

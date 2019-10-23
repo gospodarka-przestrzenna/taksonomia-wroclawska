@@ -49,7 +49,7 @@ def graph_from_layer(layer,text):
     return graph
 
 
-def layer_from_graph(name,the_set,iface):
+def layer_from_graph(name,the_set,crs):
     # we assume graph have proper __geometry field in nodes and edges
     # Take any n
     element=the_set.pop()
@@ -69,7 +69,7 @@ def layer_from_graph(name,the_set,iface):
 
     vl=QgsVectorLayer("{}?crs={}".format(
                             layer_type,
-                            iface.mapCanvas().mapSettings().destinationCrs().authid()),
+                            crs),
                      name,
                      "memory")
 

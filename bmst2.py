@@ -87,7 +87,7 @@ class Bmst(Graph):
         for node in graph.nodes:
             # no outgoing edge ?
             if len(graph.node_outgoing_edges[node]) == 0:
-                merge_nodes[node]=[node]
+                node_nodeset[node]=[node]
                 # maybe node will be only one as a new supernode
                 continue
 
