@@ -1,4 +1,4 @@
-__author__ = 'Maciej Kamiński Politechnika Wrocławska'
+__author__ = 'Wawrzyniec Zipser, Maciej Kamiński Politechnika Wrocławska'
 
 import os,sys
 from PyQt5 import uic
