@@ -1,16 +1,19 @@
 [general]
-name=Dendryt Wrocławski
-description=QGIS plugin for spanning tree
-about= to do
-version=0.1
+name=Taksonomia Wrocławska
+description=QGIS plugin to various analysis os multivarate data
+about=     The Application provides two components:   
+        - the multivariate analysis tool that uses Sammon Mapping technique to transform multivariable data into visualisable state (2D/3D)
+        - the tool that makes clusterisation based on modified Spanning Tree approach
+        
+version=1.0
 qgisMinimumVersion=3.4
 icon=images/cluster_icon.png
 author=Wawrzyniec Zipser, Maciej Kamiński Politechnika Wrocławska
 email=kaminski.maciej@gmail.com
-tags=mst, spanning tree, dendryt wrocławski
-homepage=https://github.com/mk45/dendryt-wroclawski
-tracker=https://github.com/mk45/dendryt-wroclawski/issues
-repository=https://github.com/mk45/dendryt-wroclawski
+tags=MVA, mst, spanning tree, dendryt wrocławski
+homepage=https://github.com/gospodarka-przestrzenna/taksonomia-wroclawska
+tracker=https://github.com/gospodarka-przestrzenna/taksonomia-wroclawska/issues
+repository=https://github.com/gospodarka-przestrzenna/taksonomia-wroclawska
 experimental=False
 deprecated=False
 changelog=Version 0.1
