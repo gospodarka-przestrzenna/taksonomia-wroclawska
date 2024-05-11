@@ -64,12 +64,12 @@ class MDS(QAction):
         self.dlg.cb_column.setEnabled(False)
 
         self.dlg.column_label.setText("No columns:")
-        self.dlg.text_label.setText("'dimension1' and 'dimension2'")
+        self.dlg.text_label.setText("'dimension1' or 'dimension2' or ... ")
         self.dlg.repaint()
 
     def layer_change(self):
         layer=self.dlg.cb_layer.currentLayer()
-        self.dimmension_field_ids_list=self.dimmension_field_ids(layer)
+        self.dimmension_field_ids_list,consecutives_list=self.dimmension_field_ids(layer)
 
         self.dlg.column_label.setEnabled(True)
         self.dlg.text_label.setEnabled(True)
@@ -82,7 +82,14 @@ class MDS(QAction):
             pass
         else:
             self.dlg.column_label.setText("Found columns:")
-            self.dlg.text_label.setText("dimension1 - "+str(len(self.dimmension_field_ids_list)))
+            # found dimmension columns
+            consecutive_texts = list(map(
+                (lambda x:
+                    "dimension{}-{}".format(x[0],x[1]) if x[0]!=x[1] else
+                    "dimension{}".format(x[0])),
+                consecutives_list 
+            ))
+            self.dlg.text_label.setText(", ".join(list(consecutive_texts)))
             self.dlg.accept_button.setEnabled(True)
             if len(self.dimmension_field_ids_list)>=3:
                 self.dlg.check3d.setEnabled(True)
@@ -91,15 +98,24 @@ class MDS(QAction):
 
     def dimmension_field_ids(self,layer):
         column_ids=[]
-        counter=1
+        # create list of consequtive dimension columns
+        counter=0
+        consecutives=[]
         while True:
             index=layer.fields().indexFromName("dimension{}".format(counter))
             if index>=0:
                 column_ids.append(index)
-                counter+=1
+                if(len(consecutives)>0 and consecutives[-1][1]==counter-1):
+                    consecutives[-1][1]=counter
+                else:
+                    consecutives.append([counter,counter])
             else:
-                break
-        return column_ids
+                # we must allow to sikip some columns
+                if counter>1000:
+                    
+                    break
+            counter+=1
+        return column_ids,consecutives
 
     def compute(self):
         layer=self.dlg.cb_layer.currentLayer()
