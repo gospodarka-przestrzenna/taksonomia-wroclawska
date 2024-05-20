@@ -123,8 +123,9 @@ class MDS(QAction):
         unique_field_name=self.dlg.cb_column.currentText()
 
         data_dimensions=get_data_dimensions(layer,self.dimmension_field_ids_list)
-        data_mapped_dimensions=map_dimensions(data_dimensions,checked3d)
-        id_=id(data_mapped_dimensions)%10000
+        target_dimensions=3 if checked3d else 2
+        data_mapped_dimensions=sammon_mapping(data_dimensions,target_dimensions)
+        id_=id(data_mapped_dimensions)%10000 # this will give us unique id for layer
         layer_from_graph("nodes-{}".format(id_),
                         data_mapped_dimensions,
                         data_dimensions,
