@@ -124,7 +124,14 @@ class MDS(QAction):
 
         data_dimensions=get_data_dimensions(layer,self.dimmension_field_ids_list)
         target_dimensions=3 if checked3d else 2
-        data_mapped_dimensions=sammon_mapping(data_dimensions,target_dimensions)
+        try:
+            data_mapped_dimensions=sammon_mapping(data_dimensions,target_dimensions)
+        except Exception as e:
+            QMessageBox.critical(self.iface.mainWindow(),
+                "Error",
+                "Error during MDS computation: {}".format(e),
+                QMessageBox.Ok)
+            return    
         id_=id(data_mapped_dimensions)%10000 # this will give us unique id for layer
         layer_from_graph("nodes-{}".format(id_),
                         data_mapped_dimensions,

@@ -160,7 +160,12 @@ def sammon_mapping(X, d=2, max_iter=300, alpha=0.3, tol=1e-9):
     D_high = squareform(pdist(X, 'euclidean'))
     
     # Avoid division by zero
-    D_high[D_high == 0] = 1e-12
+    # assert non zero distances
+    # throw if any distance is zero
+    # Assert non zero distances
+    if np.any(D_high == 0):
+        raise ValueError("Zero distance found in high-dimensional space.")
+
     
     # Step 3: Main loop
     for iter in range(max_iter):
@@ -171,7 +176,7 @@ def sammon_mapping(X, d=2, max_iter=300, alpha=0.3, tol=1e-9):
         D_low[D_low == 0] = 1e-12
         
         # Compute the gradient
-        print((N,d))
+        
         E = np.zeros((N, d))
 
         for i in range(N):

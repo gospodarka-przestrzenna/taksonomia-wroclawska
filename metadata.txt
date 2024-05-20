@@ -5,7 +5,7 @@ about=     The Application provides two components:
         - the multivariate analysis tool that uses Sammon Mapping technique to transform multivariable data into visualisable state (2D/3D)
         - the tool that makes clusterisation based on modified Spanning Tree approach
         
-version=1.0
+version=1.1
 qgisMinimumVersion=3.4
 icon=images/cluster_icon.png
 author=Wawrzyniec Zipser, Maciej Kamiński Politechnika Wrocławska
@@ -17,3 +17,13 @@ repository=https://github.com/gospodarka-przestrzenna/taksonomia-wroclawska
 experimental=False
 deprecated=False
 changelog=Version 0.1
+        - Initial release
+        Version 1.0
+        - Added Sammon Mapping
+        - Added Spanning Tree Clustering
+        - Added 3D visualization
+        - Added 2D visualization
+        Version 1.1
+        - Improved Sammon Mapping algorithm (numpy)
+        - Provide error messages
+        - allow commas, dots strings in float fields
