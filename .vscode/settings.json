@@ -1,0 +1,6 @@
+{
+    "python.defaultInterpreterPath": "/Applications/QGIS-LTR.app/Contents/MacOS/bin/python3",
+    "python.analysis.extraPaths": [
+        "/Applications/QGIS-LTR.app/Contents/MacOS/bin/python3"
+    ],
+}
